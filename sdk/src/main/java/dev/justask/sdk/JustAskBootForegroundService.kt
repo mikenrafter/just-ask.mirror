@@ -31,14 +31,18 @@ abstract class JustAskBootForegroundService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            JustAskContract.ACTION_BOOT -> {
-                Log.d(TAG, "Boot start — idle until user taps notification")
+            JustAskContract.ACTION_BOOT, JustAskContract.ACTION_SHOW_IDLE -> {
+                Log.d(TAG, "Idle notification — waiting for user tap")
+                startIdleForeground()
             }
             JustAskContract.ACTION_ENABLE -> {
                 Log.d(TAG, "Enable requested — targets launched from activity")
                 showActiveNotification()
             }
-            else -> Log.d(TAG, "onStartCommand action=${intent?.action}")
+            else -> {
+                Log.d(TAG, "onStartCommand action=${intent?.action}")
+                startIdleForeground()
+            }
         }
         return START_STICKY
     }
@@ -50,7 +54,7 @@ abstract class JustAskBootForegroundService : Service() {
         val channel = NotificationChannel(
             config.notificationChannelId,
             config.notificationChannelName,
-            NotificationManager.IMPORTANCE_LOW,
+            NotificationManager.IMPORTANCE_DEFAULT,
         ).apply {
             description = config.notificationChannelDescription
         }

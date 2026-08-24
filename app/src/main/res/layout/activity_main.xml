@@ -40,12 +40,12 @@
                 android:text="@string/start_on_boot" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/launchNowButton"
+                android:id="@+id/launchIntentNotificationButton"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="@string/launch_now" />
+                android:text="@string/launch_intent_notification" />
 
             <TextView
                 android:id="@+id/selectedHeading"

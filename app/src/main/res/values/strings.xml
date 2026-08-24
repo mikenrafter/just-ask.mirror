@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Just Ask</string>
-    <string name="main_description">Pick apps and intents to launch after boot. Expand an app to see its exported activities, then check the ones that should run on the first tap of the boot notification.</string>
+    <string name="main_description">Pick apps and intents to launch after boot. Expand an app to see its exported activities, then check the ones that should run when you tap the launch notification.</string>
     <string name="start_on_boot">Start on boot</string>
-    <string name="launch_now">Launch enabled targets now</string>
+    <string name="launch_intent_notification">Launch intent notification</string>
     <string name="selected_heading">Selected for launch</string>
     <string name="selected_heading_count">Selected for launch (%1$d)</string>
     <string name="selected_empty">No intents selected yet. Expand an app below and check the activities you want Just Ask to launch.</string>
@@ -20,11 +20,13 @@
     <string name="delete">Delete</string>
     <string name="delete_target_title">Remove target?</string>
     <string name="delete_target_message">Remove %1$s from the launch list?</string>
-    <string name="launch_result_toast">Launched %1$d of %2$d targets</string>
-    <string name="notification_channel_name">Boot orchestrator</string>
-    <string name="notification_channel_description">Shown when Just Ask starts on boot and waits for your tap.</string>
-    <string name="notification_idle_title">Tap to grant permissions</string>
-    <string name="notification_idle_body">Just Ask will launch configured apps on this tap.</string>
+    <string name="notification_permission_denied">Notification permission is required to show the launch notification.</string>
+    <string name="notification_no_targets">Select at least one intent before posting the notification.</string>
+    <string name="notification_posted">Launch notification posted — tap it to start selected apps.</string>
+    <string name="notification_channel_name">Launch needy background apps</string>
+    <string name="notification_channel_description">Tap to launch configured apps that need a user action after boot.</string>
+    <string name="notification_idle_title">Some apps not launched</string>
+    <string name="notification_idle_body">Tap to launch needy background apps.</string>
     <string name="notification_active_title">Targets launched</string>
-    <string name="notification_active_body">Configured trampolines were started.</string>
+    <string name="notification_active_body">Configured apps were started.</string>
 </resources>

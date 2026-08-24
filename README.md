@@ -1,8 +1,8 @@
 # Just Ask
 
-General-purpose Android SDK extracted from [Reverb](https://github.com/)'s boot permission orchestration pattern.
+General-purpose Android SDK for boot-time permission orchestration.
 
-After reboot, Android blocks apps from promoting while-in-use foreground services (microphone, camera, location, media projection) unless the user has recently interacted with the app. Reverb solves this with:
+After reboot, Android blocks apps from promoting while-in-use foreground services (microphone, camera, location, media projection) unless the user has recently interacted with the app. Just Ask solves this with:
 
 1. **Boot receiver** → starts an idle **non-WIU** foreground service with a persistent notification
 2. **User taps notification** → transparent **Enable activity** (Activity context carries the user-action token)
@@ -25,7 +25,7 @@ Just Ask packages that flow as a reusable SDK plus a configurable launcher app.
 3. Enable **Start on boot**.
 4. After reboot, tap the notification once — **all enabled targets launch** from an eligible Activity context.
 
-Use **Launch enabled targets now** to test without rebooting.
+Use **Launch intent notification** to test without rebooting — it posts the tap-to-launch notification; tapping it starts every enabled target.
 
 ## Provider integration (your app requests its own permissions)
 
@@ -88,7 +88,7 @@ On boot the service stays idle. When the user taps the notification, your `JustA
 
 ## Fixing poorly coded apps
 
-If an app already exposes a transparent permission activity (like Reverb's `ConnectTrampolineActivity`) but never calls it on boot, add it as a **component target** in the Just Ask app. No changes to the broken app required — you supply the missing user-action Activity launch after reboot.
+If an app already exposes a transparent permission activity but never calls it on boot, add it as a **component target** in the Just Ask app. No changes to the broken app required — you supply the missing user-action Activity launch after reboot.
 
 For apps with only a settings deep link, add an **intent action** target instead of package/class.
 
@@ -102,7 +102,7 @@ For apps with only a settings deep link, add an **intent action** target instead
 
 ## Build
 
-Requires Android SDK 35, JDK 17+, minSdk 31 (aligned with Reverb's API 35 while-in-use requirements).
+Requires Android SDK 35, JDK 17+, minSdk 31.
 
 ```bash
 make build                 # assemble debug APK
@@ -130,12 +130,3 @@ Declare the host boot service in the application manifest so the SDK receiver ca
     android:value=".AppBootForegroundService" />
 ```
 
-## Reverb mapping
-
-| Reverb | Just Ask |
-|--------|----------|
-| `BootCompletedReceiver` | `JustAskBootReceiver` |
-| `RecordingForegroundService` (idle on boot) | `JustAskBootForegroundService` |
-| `EnableRecordingTrampolineActivity` | `JustAskEnableActivity` |
-| `TrackMediator.launchStartTrampolines()` | `JustAskLauncher.launchAll()` |
-| `ConnectTrampolineActivity` | `JustAskProviderActivity` |

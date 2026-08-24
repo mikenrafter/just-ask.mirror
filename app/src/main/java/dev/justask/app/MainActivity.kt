@@ -1,5 +1,8 @@
 package dev.justask.app
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -7,7 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -30,9 +35,26 @@ class MainActivity : AppCompatActivity() {
     private var allApps: List<InstalledApp> = emptyList()
     private var searchQuery: String = ""
     private val expandedPackages = mutableSetOf<String>()
+    private var pendingAfterNotificationPermission: (() -> Unit)? = null
+    private var pendingOnNotificationDenied: (() -> Unit)? = null
+    private var suppressBootSwitchCallback = false
 
     private val selectedAdapter = SelectedAdapter()
     private val catalogAdapter = CatalogAdapter()
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            val action = pendingAfterNotificationPermission
+            val onDenied = pendingOnNotificationDenied
+            pendingAfterNotificationPermission = null
+            pendingOnNotificationDenied = null
+            if (granted) {
+                action?.invoke()
+            } else {
+                onDenied?.invoke()
+                Toast.makeText(this, R.string.notification_permission_denied, Toast.LENGTH_LONG).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,20 +71,26 @@ class MainActivity : AppCompatActivity() {
         binding.appList.layoutManager = LinearLayoutManager(this)
         binding.appList.adapter = catalogAdapter
 
-        binding.startOnBootSwitch.isChecked = bootPreferences.startOnBoot
+        binding.startOnBootSwitch.isChecked = JustAsk.isBootReceiverEnabled(this)
         binding.startOnBootSwitch.setOnCheckedChangeListener { _, checked ->
-            bootPreferences.startOnBoot = checked
-            JustAsk.setBootReceiverEnabled(this, checked)
+            if (suppressBootSwitchCallback) return@setOnCheckedChangeListener
+            if (checked) {
+                withNotificationPermission(
+                    onDenied = {
+                        suppressBootSwitchCallback = true
+                        binding.startOnBootSwitch.isChecked = false
+                        suppressBootSwitchCallback = false
+                    },
+                ) {
+                    setStartOnBootEnabled(true)
+                }
+            } else {
+                setStartOnBootEnabled(false)
+            }
         }
 
-        binding.launchNowButton.setOnClickListener {
-            val results = JustAsk.launchTargets(this, targetStore.enabledTargets())
-            val launched = results.count { it.launched }
-            Toast.makeText(
-                this,
-                getString(R.string.launch_result_toast, launched, results.size),
-                Toast.LENGTH_SHORT,
-            ).show()
+        binding.launchIntentNotificationButton.setOnClickListener {
+            withNotificationPermission { postIntentNotification() }
         }
 
         binding.searchInput.addTextChangedListener(object : TextWatcher {
@@ -76,11 +104,54 @@ class MainActivity : AppCompatActivity() {
 
         refreshSelected()
         loadCatalog()
+        maybeRequestNotificationPermissionOnLaunch()
     }
 
     override fun onDestroy() {
         catalogExecutor.shutdownNow()
         super.onDestroy()
+    }
+
+    private fun setStartOnBootEnabled(enabled: Boolean) {
+        bootPreferences.startOnBoot = enabled
+        JustAsk.setBootReceiverEnabled(this, enabled)
+    }
+
+    private fun maybeRequestNotificationPermissionOnLaunch() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (hasNotificationPermission()) return
+        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    private fun hasNotificationPermission(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun withNotificationPermission(onDenied: (() -> Unit)? = null, action: () -> Unit) {
+        if (hasNotificationPermission()) {
+            action()
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pendingAfterNotificationPermission = action
+            pendingOnNotificationDenied = onDenied
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            action()
+        }
+    }
+
+    private fun postIntentNotification() {
+        if (targetStore.enabledTargets().isEmpty()) {
+            Toast.makeText(this, R.string.notification_no_targets, Toast.LENGTH_SHORT).show()
+            return
+        }
+        JustAsk.showIntentNotification(this)
+        Toast.makeText(this, R.string.notification_posted, Toast.LENGTH_SHORT).show()
     }
 
     private fun loadCatalog() {

@@ -3,7 +3,7 @@ package dev.justask.sdk
 /**
  * Wire protocol between a Just Ask orchestrator and provider trampoline activities.
  *
- * The pattern mirrors Reverb's boot flow:
+ * Boot flow:
  * 1. Boot receiver starts an idle foreground service with a tap-to-enable notification.
  * 2. User tap launches [JustAskEnableActivity] from an Activity context (required for
  *    while-in-use eligibility on API 35+).
@@ -20,6 +20,9 @@ object JustAskContract {
 
     /** Service action: user tapped notification — launch configured targets. */
     const val ACTION_ENABLE = "dev.justask.action.ENABLE"
+
+    /** Service action: show idle tap-to-launch notification (boot or in-app). */
+    const val ACTION_SHOW_IDLE = "dev.justask.action.SHOW_IDLE"
 
     /** Extra on trampoline intents: [TRAMPOLINE_MODE_START] or [TRAMPOLINE_MODE_STOP]. */
     const val EXTRA_TRAMPOLINE_MODE = "dev.justask.extra.TRAMPOLINE_MODE"

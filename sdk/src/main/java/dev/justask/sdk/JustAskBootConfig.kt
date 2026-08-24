@@ -16,7 +16,7 @@ data class JustAskBootConfig(
     val notificationId: Int = 4242,
     /**
      * Foreground service type for the idle orchestrator. Use a non-while-in-use type so boot
-     * start from [JustAskBootReceiver] is legal (same approach as Reverb's connectedDevice FGS).
+     * start from [JustAskBootReceiver] is legal (connectedDevice is a non-WIU type).
      */
-    val foregroundServiceType: Int = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+    val foregroundServiceType: Int = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE,
 )

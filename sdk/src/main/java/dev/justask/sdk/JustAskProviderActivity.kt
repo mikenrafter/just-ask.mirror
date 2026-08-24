@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
  *
  * Subclasses implement [onTrampolineStart] to request permissions and promote a foreground
  * service, and [onTrampolineStop] to tear down. Do not [finish] until [signalReady] is
- * called or [readyTimeoutMs] elapses — Reverb's mic trampoline keeps the Activity in the
+ * called or [readyTimeoutMs] elapses. Keep the Activity in the
  * foreground until the service promotion succeeds.
  */
 abstract class JustAskProviderActivity : AppCompatActivity() {

@@ -44,14 +44,24 @@ object JustAsk {
 
     /**
      * Starts the idle boot orchestrator if [startOnBoot] is enabled.
+     * Prefer toggling the boot receiver directly ([setBootReceiverEnabled]); this
+     * helper exists for callers that still mirror the legacy preference.
      */
     @JvmStatic
     fun startBootOrchestratorIfEnabled(context: Context) {
-        if (!JustAskBootPreferences(context).startOnBoot) {
-            Log.d(TAG, "startOnBoot disabled — skipping boot orchestrator")
+        if (!isBootReceiverEnabled(context)) {
+            Log.d(TAG, "boot receiver disabled — skipping boot orchestrator")
             return
         }
-        startHostService(context, JustAskContract.ACTION_BOOT)
+        showIntentNotification(context)
+    }
+
+    /**
+     * Starts the idle foreground service and posts the tap-to-launch notification.
+     */
+    @JvmStatic
+    fun showIntentNotification(context: Context) {
+        startHostService(context, JustAskContract.ACTION_SHOW_IDLE)
     }
 
     /**

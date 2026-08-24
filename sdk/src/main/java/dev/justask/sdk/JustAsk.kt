@@ -58,10 +58,27 @@ object JustAsk {
 
     /**
      * Starts the idle foreground service and posts the tap-to-launch notification.
+     *
+     * Steps down silently when the standalone Just Ask app is installed: that app
+     * discovers all SDK-integrated apps via [JustAskContract.ACTION_TRAMPOLINE_PROVIDER]
+     * and consolidates them under its own single boot notification.
      */
     @JvmStatic
     fun showIntentNotification(context: Context) {
+        if (isJustAskAppInstalled(context)) {
+            Log.i(TAG, "Just Ask app present — deferring boot notification to it")
+            return
+        }
         startHostService(context, JustAskContract.ACTION_SHOW_IDLE)
+    }
+
+    /** Returns true if the standalone Just Ask orchestrator app is installed. */
+    @JvmStatic
+    fun isJustAskAppInstalled(context: Context): Boolean = try {
+        context.packageManager.getPackageInfo(JustAskContract.JUST_ASK_APP_PACKAGE, 0)
+        true
+    } catch (_: PackageManager.NameNotFoundException) {
+        false
     }
 
     /**

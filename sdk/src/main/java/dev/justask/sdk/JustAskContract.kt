@@ -49,4 +49,7 @@ object JustAskContract {
      * [JustAskBootForegroundService] subclass (relative `.Class` or FQCN).
      */
     const val META_BOOT_SERVICE = "dev.justask.BOOT_SERVICE"
+
+    /** Package name of the standalone Just Ask orchestrator app. */
+    const val JUST_ASK_APP_PACKAGE = "dev.justask.app"
 }

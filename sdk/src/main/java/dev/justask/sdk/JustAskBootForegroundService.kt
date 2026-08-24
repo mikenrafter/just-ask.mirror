@@ -90,7 +90,7 @@ abstract class JustAskBootForegroundService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         return NotificationCompat.Builder(this, config.notificationChannelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(config.notificationIconRes)
             .setContentTitle(config.idleNotificationTitle)
             .setContentText(config.idleNotificationBody)
             .setContentIntent(pending)
@@ -100,7 +100,7 @@ abstract class JustAskBootForegroundService : Service() {
 
     private fun buildActiveNotification(config: JustAskBootConfig): Notification {
         return NotificationCompat.Builder(this, config.notificationChannelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(config.notificationIconRes)
             .setContentTitle(config.activeNotificationTitle)
             .setContentText(config.activeNotificationBody)
             .setOngoing(true)

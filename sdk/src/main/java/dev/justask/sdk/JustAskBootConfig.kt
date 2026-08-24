@@ -14,6 +14,8 @@ data class JustAskBootConfig(
     val activeNotificationTitle: String = idleNotificationTitle,
     val activeNotificationBody: String = idleNotificationBody,
     val notificationId: Int = 4242,
+    /** Drawable resource used as the small notification icon. */
+    val notificationIconRes: Int = android.R.drawable.ic_dialog_info,
     /**
      * Foreground service type for the idle orchestrator. Use a non-while-in-use type so boot
      * start from [JustAskBootReceiver] is legal (connectedDevice is a non-WIU type).

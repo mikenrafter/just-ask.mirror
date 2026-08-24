@@ -27,8 +27,13 @@
             platformVersions = [ "35" ];
             includeNDK = false;
             includeCmake = false;
-            includeEmulator = false;
-            includeSystemImages = false;
+            includeEmulator = true;
+            includeSystemImages = true;
+            systemImageTypes = [ "default" ];
+            abiVersions =
+              if pkgs.system == "aarch64-linux" then [ "arm64-v8a" ]
+              else [ "x86_64" ];
+            includeSources = false;
             extraLicenses = [
               "android-sdk-license"
               "android-sdk-preview-license"
@@ -37,12 +42,15 @@
           };
           androidSdk = androidComposition.androidsdk;
 
+          # FHS environment so dynamically-linked Android SDK binaries (aapt2,
+          # emulator) can resolve their glibc paths on NixOS.
           fhs = pkgs.buildFHSEnv {
             name = "just-ask-fhs";
             targetPkgs = p: with p; [
               jdk21_headless
               android-tools
               git
+              gnumake
               bashInteractive
               unzip
               zlib
@@ -68,7 +76,12 @@
 
         in
         {
-          packages = [ fhs androidSdk pkgs.android-tools ];
+          packages = [
+            fhs
+            androidSdk
+            pkgs.android-tools
+            pkgs.gnumake
+          ];
 
           shellHook = ''
             export ANDROID_HOME="${androidSdk}/libexec/android-sdk"
@@ -76,6 +89,7 @@
             export JAVA_HOME="${pkgs.jdk21_headless}"
             export PATH="$JAVA_HOME/bin:$PATH"
 
+            # Keep local.properties pointed at the current Nix SDK derivation.
             ${pkgs.gnused}/bin/sed -i \
               -e 's|^sdk\.dir=.*|sdk.dir=${androidSdk}/libexec/android-sdk|' \
               local.properties 2>/dev/null || true
@@ -87,13 +101,17 @@
                 echo "Entering Just Ask FHS dev shell..."
                 exec just-ask-fhs
               fi
+              # Non-interactive (nix develop -c cmd): Makefile targets route
+              # through just-ask-fhs automatically — no action needed here.
             else
               echo ""
               echo "Just Ask — Android devShell (FHS)"
               echo "  ANDROID_SDK_ROOT = $ANDROID_SDK_ROOT"
               echo "  JAVA_HOME        = $JAVA_HOME"
               echo ""
-              echo "Build:  ./gradlew :app:assembleDebug"
+              echo "Build:              make build"
+              echo "Install (device):   make install"
+              echo "Install (emulator): make install-emulator"
               echo ""
             fi
           '';

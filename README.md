@@ -21,7 +21,7 @@ Just Ask packages that flow as a reusable SDK plus a configurable launcher app.
 ## Quick start (general app)
 
 1. Install `:app`.
-2. Add targets — package + activity class (e.g. Reverb's `app.reverb.track.mic.ConnectTrampolineActivity` in `app.reverb.track.mic`), or use **Discover** for apps that advertise `dev.justask.action.TRAMPOLINE_PROVIDER`.
+2. In **Installed apps**, expand an app accordion and check the exported activities / intents to launch (Just Ask providers are labeled).
 3. Enable **Start on boot**.
 4. After reboot, tap the notification once — **all enabled targets launch** from an eligible Activity context.
 
@@ -102,15 +102,25 @@ For apps with only a settings deep link, add an **intent action** target instead
 
 ## Build
 
-```bash
-./gradlew :app:assembleDebug
-```
-
 Requires Android SDK 35, JDK 17+, minSdk 31 (aligned with Reverb's API 35 while-in-use requirements).
 
 ```bash
-nix develop -c just-ask-fhs ./gradlew :app:assembleDebug
+make build                 # assemble debug APK
+make install               # install on a connected device
+make install-emulator      # boot/reuse AVD just_ask_test, then install
+make emulator              # boot AVD only (foreground; Ctrl-C to stop)
+make logs                  # filtered logcat
 ```
+
+Outside a nix shell, Makefile targets enter `nix develop` and run inside `just-ask-fhs` automatically. Emulator targets need a desktop session (Wayland/X11).
+
+Optional env vars for the emulator script:
+
+| Variable | Default |
+|----------|---------|
+| `JUST_ASK_AVD_NAME` | `just_ask_test` |
+| `JUST_ASK_BOOT_SETTLE_SECONDS` | `10` |
+| `JUST_ASK_EMULATOR_START_TIMEOUT_SECONDS` | `300` |
 
 Declare the host boot service in the application manifest so the SDK receiver can start it:
 

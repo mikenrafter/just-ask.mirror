@@ -36,6 +36,14 @@ if ! gh auth status >/dev/null 2>&1; then
   exit 1
 fi
 
+# Publishing needs write:packages (read:packages for consumers). `repo` alone is not enough.
+if ! gh auth status 2>&1 | grep -q 'write:packages'; then
+  echo "GitHub token is missing write:packages." >&2
+  echo "Run once (browser device flow):" >&2
+  echo "  gh auth refresh -h github.com -s write:packages,read:packages" >&2
+  exit 1
+fi
+
 VERSION_NAME="${VERSION_NAME:-$(grep -E '^VERSION_NAME=' gradle.properties | cut -d= -f2-)}"
 if [[ -z "${VERSION_NAME}" ]]; then
   echo "VERSION_NAME is empty — set it in gradle.properties or the environment." >&2

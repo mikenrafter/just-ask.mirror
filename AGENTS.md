@@ -4,9 +4,18 @@
 
 There is **no CI**. Publish from a machine with the Android toolchain and `gh` logged in.
 
+One-time token scopes (upload fails with 401 without these):
+
+```bash
+gh auth refresh -h github.com -s write:packages,read:packages
+```
+
+Then:
+
 ```bash
 # From repo root (uses nix develop + just-ask-fhs when flake.nix is present)
 ./scripts/publish-github-packages.sh
+# or: make publish
 ```
 
 What the script does:

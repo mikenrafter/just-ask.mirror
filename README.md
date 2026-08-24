@@ -79,7 +79,7 @@ JustAskLauncher.launchOne(
 
 ## Orchestrator integration (embed boot flow in your app)
 
-1. Depend on `:sdk`.
+1. Depend on `dev.justask:sdk` from GitHub Packages (see **Build** below).
 2. Subclass `JustAskBootForegroundService` and `JustAskEnableActivity` (see `AppBootForegroundService` / `AppEnableActivity` in `:app`).
 3. Declare service, enable activity, and `JustAskBootReceiver` in your manifest (copy from `app/src/main/AndroidManifest.xml`).
 4. When the user opts in: `JustAsk.setBootReceiverEnabled(context, true)` and `JustAskBootPreferences(context).startOnBoot = true`.
@@ -110,7 +110,35 @@ make install               # install on a connected device
 make install-emulator      # boot/reuse AVD just_ask_test, then install
 make emulator              # boot AVD only (foreground; Ctrl-C to stop)
 make logs                  # filtered logcat
+make publish               # publish :sdk to GitHub Packages + tag v$VERSION_NAME
 ```
+
+### Consuming `:sdk` from GitHub Packages
+
+Coordinate: `dev.justask:sdk:0.1.0` (see `VERSION_NAME` in `gradle.properties`).
+
+```kotlin
+// settings.gradle.kts — dependencyResolutionManagement.repositories
+maven {
+    url = uri("https://maven.pkg.github.com/mikenrafter/just-ask")
+    credentials {
+        username = providers.environmentVariable("GITHUB_ACTOR").orElse("mikenrafter").get()
+        password = providers.environmentVariable("GITHUB_TOKEN").orElse("").get()
+    }
+}
+
+// module build.gradle.kts
+implementation("dev.justask:sdk:0.1.0")
+```
+
+Export a token before resolving (GitHub Packages usually requires auth even when the repo is public):
+
+```bash
+export GITHUB_TOKEN="$(gh auth token)"
+export GITHUB_ACTOR="$(gh api user -q .login)"
+```
+
+Publish locally with `make publish` or `./scripts/publish-github-packages.sh` (see `AGENTS.md`). No CI/Actions.
 
 Outside a nix shell, Makefile targets enter `nix develop` and run inside `just-ask-fhs` automatically. Emulator targets need a desktop session (Wayland/X11).
 

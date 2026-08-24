@@ -1,4 +1,4 @@
-.PHONY: build install install/emulator install-emulator emulator logs crash clear-logs
+.PHONY: build install install/emulator install-emulator emulator logs crash clear-logs publish
 
 # Preserve the caller's graphical session when entering nix develop.
 SESSION_ENV = \
@@ -13,7 +13,7 @@ SESSION_ENV = \
 # glibc paths correctly on NixOS. Three cases:
 #   1. Already in FHS (IN_JUST_ASK_FHS set)  → run directly
 #   2. In nix develop but not FHS             → wrap with just-ask-fhs
-#   3. Outside nix develop entirely           → enter nix develop, then FHS
+#   3. Outside nix develop entirely          → enter nix develop, then FHS
 ifeq ($(IN_JUST_ASK_FHS),1)
   RUN =
 else ifeq ($(IN_NIX_SHELL),)
@@ -25,6 +25,11 @@ endif
 # Build the debug APK.
 build:
 	$(RUN) ./gradlew :app:assembleDebug
+
+# Publish :sdk to GitHub Packages and tag v$$VERSION_NAME (see AGENTS.md).
+publish:
+	@chmod +x scripts/publish-github-packages.sh
+	./scripts/publish-github-packages.sh
 
 # Build and install on a connected device.
 install:

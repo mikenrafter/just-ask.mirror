@@ -19,7 +19,7 @@
 
         <meta-data
             android:name="dev.justask.BOOT_SERVICE"
-            android:value=".AppBootForegroundService" />
+            android:value="dev.justask.app.AppBootForegroundService" />
 
         <activity
             android:name=".MainActivity"

@@ -74,8 +74,7 @@ object JustAsk {
             context.packageName,
             PackageManager.GET_META_DATA,
         )
-        val declared = appInfo.metaData?.getString(JustAskContract.META_BOOT_SERVICE) ?: return null
-        val fqcn = if (declared.startsWith(".")) context.packageName + declared else declared
+        val fqcn = appInfo.metaData?.getString(JustAskContract.META_BOOT_SERVICE) ?: return null
         @Suppress("UNCHECKED_CAST")
         return Class.forName(fqcn) as Class<out Service>
     }
@@ -112,6 +111,8 @@ object JustAsk {
     fun isBootReceiverEnabled(context: Context): Boolean {
         val receiver = android.content.ComponentName(context, JustAskBootReceiver::class.java)
         val state = context.packageManager.getComponentEnabledSetting(receiver)
-        return state == android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        // DEFAULT means the manifest value applies; treat it as enabled unless the manifest
+        // declares android:enabled="false" (which sets DISABLED at install time).
+        return state != android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
     }
 }

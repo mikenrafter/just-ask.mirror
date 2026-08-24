@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Just Ask</string>
+    <string name="main_description">Configure apps or intents to launch after boot. On the first tap of the boot notification, every enabled target is launched from an Activity context so runtime permissions and foreground-service promotion can succeed.</string>
+    <string name="start_on_boot">Start on boot</string>
+    <string name="launch_now">Launch enabled targets now</string>
+    <string name="targets_heading">Targets</string>
+    <string name="add_target">Add target</string>
+    <string name="discover">Discover</string>
+    <string name="empty_targets">No targets yet. Add a trampoline activity or discover installed Just Ask providers.</string>
+    <string name="enabled">Enabled</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
+    <string name="add_target_title">Add target</string>
+    <string name="edit_target_title">Edit target</string>
+    <string name="add_target_validation">Provide a package + activity class or an intent action.</string>
+    <string name="add_target_validation_class">Activity class is required when package is set.</string>
+    <string name="delete_target_title">Remove target?</string>
+    <string name="delete_target_message">Remove %1$s from the launch list?</string>
+    <string name="field_label">Label</string>
+    <string name="field_package">Package name</string>
+    <string name="field_class">Activity class</string>
+    <string name="intent_section">Or launch by intent action (optional alternative to component):</string>
+    <string name="field_action">Intent action</string>
+    <string name="field_data">Intent data URI</string>
+    <string name="discover_title">Discovered providers</string>
+    <string name="discover_empty">No apps advertise dev.justask.action.TRAMPOLINE_PROVIDER.</string>
+    <string name="discover_already_added">That provider is already in the list.</string>
+    <string name="launch_result_toast">Launched %1$d of %2$d targets</string>
+    <string name="notification_channel_name">Boot orchestrator</string>
+    <string name="notification_channel_description">Shown when Just Ask starts on boot and waits for your tap.</string>
+    <string name="notification_idle_title">Tap to grant permissions</string>
+    <string name="notification_idle_body">Just Ask will launch configured apps on this tap.</string>
+    <string name="notification_active_title">Targets launched</string>
+    <string name="notification_active_body">Configured trampolines were started.</string>
+</resources>

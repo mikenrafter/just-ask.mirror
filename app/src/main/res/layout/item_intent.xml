@@ -28,6 +28,13 @@
             android:textAppearance="?attr/textAppearanceBodyMedium" />
 
         <TextView
+            android:id="@+id/intentKind"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceLabelSmall"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <TextView
             android:id="@+id/intentSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +45,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="@string/trampoline_provider_badge"
             android:textAppearance="?attr/textAppearanceLabelSmall"
             android:textColor="?attr/colorPrimary"
             android:visibility="gone" />

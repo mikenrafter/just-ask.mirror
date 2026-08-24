@@ -7,4 +7,13 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Merged into every SDK host so getPackageInfo(JUST_ASK_APP_PACKAGE) works under
+         Android 11+ package visibility, enabling step-down when Just Ask is installed. -->
+    <queries>
+        <package android:name="dev.justask.app" />
+        <intent>
+            <action android:name="dev.justask.action.TRAMPOLINE_PROVIDER" />
+        </intent>
+    </queries>
+
 </manifest>

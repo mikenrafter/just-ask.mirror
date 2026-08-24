@@ -15,6 +15,11 @@ class JustAskBootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action != Intent.ACTION_BOOT_COMPLETED) return
+        if (JustAsk.shouldDeferToJustAskApp(context)) {
+            Log.i(TAG, "BOOT_COMPLETED — Just Ask app present, stepping down")
+            JustAsk.relinquishIfOrchestratorPresent(context)
+            return
+        }
         Log.i(TAG, "BOOT_COMPLETED — posting idle launch notification")
         JustAsk.showIntentNotification(context)
     }

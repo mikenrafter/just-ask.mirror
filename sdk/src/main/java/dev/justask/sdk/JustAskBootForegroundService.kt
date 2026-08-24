@@ -36,8 +36,12 @@ abstract class JustAskBootForegroundService : Service() {
                 startIdleForeground()
             }
             JustAskContract.ACTION_ENABLE -> {
-                Log.d(TAG, "Enable requested — targets launched from activity")
-                showActiveNotification()
+                // Targets were launched from the enable activity. The idle
+                // orchestrator has nothing left to do — tear down the FGS and
+                // its notification rather than posting a "done" status.
+                Log.d(TAG, "Enable requested — stopping idle orchestrator")
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
             }
             else -> {
                 Log.d(TAG, "onStartCommand action=${intent?.action}")
@@ -71,17 +75,13 @@ abstract class JustAskBootForegroundService : Service() {
         )
     }
 
-    private fun showActiveNotification() {
-        val config = bootConfig()
-        getSystemService(NotificationManager::class.java)?.notify(
-            config.notificationId,
-            buildActiveNotification(config),
-        )
-    }
-
     private fun buildIdleNotification(config: JustAskBootConfig): Notification {
         val enableIntent = Intent(this, enableActivityClass()).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or
+                    Intent.FLAG_ACTIVITY_NO_ANIMATION,
+            )
         }
         val pending = PendingIntent.getActivity(
             this,
@@ -94,15 +94,6 @@ abstract class JustAskBootForegroundService : Service() {
             .setContentTitle(config.idleNotificationTitle)
             .setContentText(config.idleNotificationBody)
             .setContentIntent(pending)
-            .setOngoing(true)
-            .build()
-    }
-
-    private fun buildActiveNotification(config: JustAskBootConfig): Notification {
-        return NotificationCompat.Builder(this, config.notificationChannelId)
-            .setSmallIcon(config.notificationIconRes)
-            .setContentTitle(config.activeNotificationTitle)
-            .setContentText(config.activeNotificationBody)
             .setOngoing(true)
             .build()
     }

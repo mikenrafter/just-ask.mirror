@@ -31,6 +31,11 @@ object JustAskLauncher {
         val callerPackage = activity.packageName
         return targets
             .filter { it.enabled }
+            .filter { target ->
+                val pkg = target.componentPackage
+                // Never launch the orchestrator's own components from the enable trampoline.
+                pkg == null || pkg != callerPackage
+            }
             .map { target ->
                 launchOne(activity, target, callerPackage, sessionToken)
             }
@@ -64,7 +69,7 @@ object JustAskLauncher {
     fun discoverProviders(context: Context): List<JustAskTarget> {
         val pm = context.packageManager
         val probe = Intent(JustAskContract.ACTION_TRAMPOLINE_PROVIDER)
-        val matches = pm.queryIntentActivities(probe, PackageManager.MATCH_DEFAULT_ONLY)
+        val matches = pm.queryIntentActivities(probe, PackageManager.MATCH_ALL)
         return matches.mapNotNull { info ->
             val activityInfo = info.activityInfo ?: return@mapNotNull null
             JustAskTarget.component(

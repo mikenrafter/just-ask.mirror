@@ -9,6 +9,15 @@
     <!-- Needed to list every installed app and its exported activities for target selection. -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
+    <queries>
+        <intent>
+            <action android:name="dev.justask.action.TRAMPOLINE_PROVIDER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+        </intent>
+    </queries>
+
     <application
         android:name=".JustAskApplication"
         android:allowBackup="true"
@@ -44,7 +53,7 @@
 
         <receiver
             android:name="dev.justask.sdk.JustAskBootReceiver"
-            android:enabled="false"
+            android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

@@ -8,7 +8,7 @@ class JustAskBootPreferences(context: Context) {
         .getSharedPreferences(JustAskContract.PREFS_NAME, Context.MODE_PRIVATE)
 
     var startOnBoot: Boolean
-        get() = prefs.getBoolean(JustAskContract.PREF_START_ON_BOOT, false)
+        get() = prefs.getBoolean(JustAskContract.PREF_START_ON_BOOT, true)
         set(value) {
             prefs.edit().putBoolean(JustAskContract.PREF_START_ON_BOOT, value).apply()
         }

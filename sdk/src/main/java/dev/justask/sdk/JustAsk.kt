@@ -59,17 +59,31 @@ object JustAsk {
     /**
      * Starts the idle foreground service and posts the tap-to-launch notification.
      *
-     * Steps down silently when the standalone Just Ask app is installed: that app
-     * discovers all SDK-integrated apps via [JustAskContract.ACTION_TRAMPOLINE_PROVIDER]
-     * and consolidates them under its own single boot notification.
+     * SDK host apps step down when the standalone Just Ask app is installed: that app
+     * discovers trampolines via [JustAskContract.ACTION_TRAMPOLINE_PROVIDER] and posts
+     * one consolidated notification. The Just Ask app itself never steps down.
+     *
+     * @return true if the host service was started, false if this call stepped down
+     *   or could not resolve a boot service.
      */
     @JvmStatic
-    fun showIntentNotification(context: Context) {
-        if (isJustAskAppInstalled(context)) {
+    fun showIntentNotification(context: Context): Boolean {
+        if (shouldDeferToJustAskApp(context)) {
             Log.i(TAG, "Just Ask app present — deferring boot notification to it")
-            return
+            stopHostService(context)
+            return false
         }
-        startHostService(context, JustAskContract.ACTION_SHOW_IDLE)
+        return startHostService(context, JustAskContract.ACTION_SHOW_IDLE)
+    }
+
+    /**
+     * True when another package should own the boot notification: the Just Ask app is
+     * installed and this process is not that app.
+     */
+    @JvmStatic
+    fun shouldDeferToJustAskApp(context: Context): Boolean {
+        if (context.packageName == JustAskContract.JUST_ASK_APP_PACKAGE) return false
+        return isJustAskAppInstalled(context)
     }
 
     /** Returns true if the standalone Just Ask orchestrator app is installed. */
@@ -97,14 +111,33 @@ object JustAsk {
     }
 
     @JvmStatic
-    fun startHostService(context: Context, action: String) {
+    fun startHostService(context: Context, action: String): Boolean {
         val serviceClass = resolveBootServiceClass(context)
         if (serviceClass == null) {
             Log.e(TAG, "Missing ${JustAskContract.META_BOOT_SERVICE} application meta-data")
-            return
+            return false
         }
         val intent = Intent(context, serviceClass).apply { this.action = action }
         ContextCompat.startForegroundService(context, intent)
+        return true
+    }
+
+    /** Stops the host idle orchestrator if it is declared and running. */
+    @JvmStatic
+    fun stopHostService(context: Context) {
+        val serviceClass = resolveBootServiceClass(context) ?: return
+        context.stopService(Intent(context, serviceClass))
+    }
+
+    /**
+     * If the Just Ask app is present, stop this host's idle notification service so
+     * only the orchestrator keeps a boot notification up.
+     */
+    @JvmStatic
+    fun relinquishIfOrchestratorPresent(context: Context) {
+        if (!shouldDeferToJustAskApp(context)) return
+        Log.i(TAG, "Just Ask app present — stopping host boot service")
+        stopHostService(context)
     }
 
     /**

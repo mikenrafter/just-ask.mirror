@@ -15,7 +15,9 @@ abstract class JustAskEnableActivity : Activity() {
         super.onCreate(savedInstanceState)
         JustAsk.enableFromActivity(this, loadTargets(), notifyService = true)
         onTargetsLaunched()
-        finish()
+        // Drop this trampoline task so the orchestrator app does not stay in the
+        // foreground after launching needy targets.
+        finishAndRemoveTask()
     }
 
     /** Targets to launch on this user action. */

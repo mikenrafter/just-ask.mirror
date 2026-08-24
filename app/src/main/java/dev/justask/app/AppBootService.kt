@@ -12,8 +12,6 @@ class AppBootForegroundService : JustAskBootForegroundService() {
             notificationChannelDescription = getString(R.string.notification_channel_description),
             idleNotificationTitle = getString(R.string.notification_idle_title),
             idleNotificationBody = getString(R.string.notification_idle_body),
-            activeNotificationTitle = getString(R.string.notification_active_title),
-            activeNotificationBody = getString(R.string.notification_active_body),
         )
     }
 
